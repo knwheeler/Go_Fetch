@@ -26,7 +26,8 @@ namespace Go_Fetch
         public readonly PictureBox pbDog;
         private List<Bitmap> _runBitmapsL, _runBitmapsR, _wagBitmapsL, _wagBitmapsR;
         private static System.Windows.Threading.DispatcherTimer _runTimer, _wagTimer;
-        private Direction direction = Direction.Left;
+        private Direction _direction = Direction.Left;
+        private Point _startPoint; 
 
         public Dog(Form form)
         {
@@ -69,6 +70,7 @@ namespace Go_Fetch
             _wagBitmapsR.Add(Go_Fetch.Properties.Resources.RSit3);
             _wagBitmapsR.Add(Go_Fetch.Properties.Resources.RSit4);
 
+            _startPoint = new Point(form.ClientSize.Width / 2, form.ClientSize.Height - _myDog.Height);
 
             //using a tag on pbDog so that we can check to see what image pbDog is set to and move to the next for each timer tick
             pbDog = new PictureBox
@@ -77,9 +79,9 @@ namespace Go_Fetch
                 Image = _myDog,
                 Tag = 0,
                 Size = new System.Drawing.Size(_myDog.Width, _myDog.Height),
-                Location = new Point(form.ClientSize.Width / 2, form.ClientSize.Height - _myDog.Height)
+                Location = _startPoint
             };
-           
+            
             form.Controls.Add(pbDog);
             pbDog.BringToFront();
         }
@@ -89,11 +91,11 @@ namespace Go_Fetch
         {
             if (key == Keys.Right)
             {
-                direction = Direction.Right;
+                _direction = Direction.Right;
             }
             else if (key == Keys.Left)
             {
-                direction = Direction.Left;
+                _direction = Direction.Left;
             }
         }
 
@@ -101,11 +103,11 @@ namespace Go_Fetch
         {
 
 
-            if (direction == Direction.Right && pbDog.Location.X >= Go_Fetch.MainForm.ActiveForm.ClientSize.Width - (pbDog.Width * 1.25))
+            if (_direction == Direction.Right && pbDog.Location.X >= Go_Fetch.MainForm.ActiveForm.ClientSize.Width - (pbDog.Width * 1.25))
             {
                 Bounce(-1, 0);
             }
-            else if (direction == Direction.Left && pbDog.Location.X <= (pbDog.Width * 0.25))
+            else if (_direction == Direction.Left && pbDog.Location.X <= (pbDog.Width * 0.25))
             {
                 Bounce(1, 0);
             }
@@ -127,6 +129,12 @@ namespace Go_Fetch
                 _wagTimer.Start();
             }
 
+        }
+
+        public void Reset()
+        {
+            pbDog.Location = _startPoint;
+            pbDog.Refresh();
         }
 
 
@@ -161,7 +169,7 @@ namespace Go_Fetch
             int tag = 0; 
             List<Bitmap> runBitmaps = null;
 
-            if (direction == Direction.Left)
+            if (_direction == Direction.Left)
             {
                 increment = -4;
                 runBitmaps = _runBitmapsL;
@@ -193,7 +201,7 @@ namespace Go_Fetch
             List<Bitmap> wagBitmaps = null;
             int tag = 0; 
 
-            if (direction == Direction.Left)
+            if (_direction == Direction.Left)
             {
                 wagBitmaps = _wagBitmapsL;
             }
@@ -241,6 +249,7 @@ namespace Go_Fetch
 
         }
 
+        
   
     }
 }

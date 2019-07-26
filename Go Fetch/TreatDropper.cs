@@ -12,7 +12,7 @@ namespace Go_Fetch
     class TreatDropper
     {
         public readonly PictureBox pbTreat;
-        private Bitmap myTreat;
+        private Bitmap _myTreat;
         private List<Bitmap> _treatList; 
         private Random r = new Random();
         private Dog _dog;
@@ -48,21 +48,19 @@ namespace Go_Fetch
             DropTreat();
         }
 
-        private void ResetTreat()
+        public void ResetTreat()
         {
-            myTreat = _treatList[r.Next(0, _treatList.Count)];
+            _myTreat = _treatList[r.Next(0, _treatList.Count)];
 
-            pbTreat.Image = myTreat;
-            pbTreat.Size = new System.Drawing.Size(myTreat.Width, myTreat.Height);
-            pbTreat.Location = new Point(r.Next(0, _formWidth), 15 - myTreat.Height);
+            pbTreat.Image = _myTreat;
+            pbTreat.Size = new System.Drawing.Size(_myTreat.Width, _myTreat.Height);
+            pbTreat.Location = new Point(r.Next(0, _formWidth), 15 - _myTreat.Height);
            
         }
        
         //using a backgroundworker to ensure the treat keeps falling while the dog is moving 
         public void DropTreat()
         {
-
-            
 
             BackgroundWorker dropWorker = new BackgroundWorker();
             dropWorker.DoWork += Fall;
@@ -102,15 +100,15 @@ namespace Go_Fetch
             
             if ((_dog.pbDog.Location.X > pbTreat.Location.X) && (_dog.pbDog.Location.X < pbTreat.Location.X + pbTreat.Width))
             {
-                MainForm.score += MainForm.ScoreVal ;
+                MainForm.score += (int)GameParameters.ScoreVal;
             }
             else if ((_dog.pbDog.Location.X + _dog.pbDog.Width > pbTreat.Location.X) && (_dog.pbDog.Location.X + _dog.pbDog.Width < pbTreat.Location.X + pbTreat.Width))
             {
-                MainForm.score += MainForm.ScoreVal; 
+                MainForm.score += (int)GameParameters.ScoreVal; 
             }
             else if ((_dog.pbDog.Location.X + _dog.pbDog.Width / 2 > pbTreat.Location.X) && (_dog.pbDog.Location.X + _dog.pbDog.Width / 2 < pbTreat.Location.X + pbTreat.Width))
             {
-                MainForm.score += MainForm.ScoreVal;
+                MainForm.score += (int)GameParameters.ScoreVal;
             }
             else
             {
@@ -127,6 +125,7 @@ namespace Go_Fetch
             }
             else
             {
+                _dog.StopRunning(); 
                 MainForm.GameOver(); 
             }
 

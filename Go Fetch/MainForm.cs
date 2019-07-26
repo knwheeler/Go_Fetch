@@ -11,14 +11,21 @@ using System.Windows.Forms;
 
 namespace Go_Fetch
 {
+   enum GameParameters
+    {
+        lives = 3, 
+        score = 0, 
+        ScoreVal = 5
+    }
+
     public partial class MainForm : Form
     {
         public static bool rightKeyDown = false;
         public static bool leftKeyDown = false;
-        public static int lives = 3;
-        public static int score = 0;
-        public static readonly int ScoreVal = 5;
-        public static System.Windows.Forms.Label lLives, lScore, lPoints, lGameOver; 
+        public static int lives = (int)GameParameters.lives;
+        public static int score = (int)GameParameters.score;
+        public static System.Windows.Forms.Label lLives, lScore, lPoints, lGameOver;
+        public static System.Windows.Forms.Button bRetry; 
 
         Dog dog;
         TreatDropper treatDropper; 
@@ -70,7 +77,26 @@ namespace Go_Fetch
 
         public static void GameOver()
         {
-            lGameOver.Visible = true; 
+
+            lGameOver.Visible = true;
+            bRetry.Visible = true;
+            bRetry.Enabled = true; 
+        }
+
+        private void bRetry_Click(object sender, EventArgs e)
+        {
+            lGameOver.Visible = false;
+            bRetry.Visible = false;
+            bRetry.Enabled = false;
+
+            lives = (int)GameParameters.lives;
+            score = (int)GameParameters.score;
+            UpdateLives();
+            UpdateScore();
+
+            dog.Reset(); 
+            treatDropper.ResetTreat();
+            treatDropper.DropTreat(); 
         }
 
         private void AddControls()
@@ -118,11 +144,23 @@ namespace Go_Fetch
                 Location = new Point((this.Width / 2) - 100, (this.Height / 2) - 55),
                 Visible = false
             };
-            
+
+            bRetry = new Button
+            {
+                Text = "Retry",
+                Visible = false,
+                Enabled = false,
+                Width = 100,
+                Height = 50,
+                Location = new Point((this.Width / 2) - 50, (lGameOver.Location.Y + 70))
+            };
+
             this.Controls.Add(lLives);
             this.Controls.Add(lScore);
             this.Controls.Add(lPoints);
-            this.Controls.Add(lGameOver); 
+            this.Controls.Add(lGameOver);
+            this.Controls.Add(bRetry);
+            bRetry.Click += new EventHandler(bRetry_Click); 
             UpdateLives();
 
         }
@@ -157,6 +195,8 @@ namespace Go_Fetch
                 dog.StopRunning();
             }
         }
+
+
 
         
 
