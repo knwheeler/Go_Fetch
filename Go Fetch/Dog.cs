@@ -25,23 +25,23 @@ namespace Go_Fetch
         private Bitmap _myDog = Go_Fetch.Properties.Resources.LDog;
         public readonly PictureBox pbDog;
         private List<Bitmap> _runBitmapsL, _runBitmapsR, _wagBitmapsL, _wagBitmapsR;
-        private static System.Windows.Threading.DispatcherTimer _runTimer;
+        private static System.Windows.Threading.DispatcherTimer _runTimer, _wagTimer;
         private Direction direction = Direction.Left;
-        private int counter = 0; 
 
         public Dog(Form form)
         {
+            //putting Run and Wag on their own timers so they will not interrupt the treatDropper
             _runTimer = new System.Windows.Threading.DispatcherTimer();
-            _runTimer.Tick += Sprint; 
-          
+            _runTimer.Tick += Run; 
+            _runTimer.Interval = new TimeSpan(20);
 
-            _runTimer.Interval = new TimeSpan(20000);
-
-            
-           
-
+            _wagTimer = new System.Windows.Threading.DispatcherTimer();
+            _wagTimer.Tick += Wag;
+            _wagTimer.Interval = new TimeSpan(20);
 
             
+
+
             _runBitmapsL = new List<Bitmap>();
             _runBitmapsR = new List<Bitmap>();
             _wagBitmapsL = new List<Bitmap>();
@@ -70,7 +70,7 @@ namespace Go_Fetch
             _wagBitmapsR.Add(Go_Fetch.Properties.Resources.RSit4);
 
 
-
+            //using a tag on pbDog so that we can check to see what image pbDog is set to and move to the next for each timer tick
             pbDog = new PictureBox
             {
                 Name = "pbDog",
@@ -84,6 +84,7 @@ namespace Go_Fetch
             pbDog.BringToFront();
         }
 
+
         public void ChangeDirection(Keys key)
         {
             if (key == Keys.Right)
@@ -96,9 +97,42 @@ namespace Go_Fetch
             }
         }
 
-        private void UpdateImage(Bitmap bitmap, int tag, Point point)
+        public void StartRunning()
         {
 
+
+            if (direction == Direction.Right && pbDog.Location.X >= Go_Fetch.MainForm.ActiveForm.ClientSize.Width - (pbDog.Width * 1.25))
+            {
+                Bounce(-1, 0);
+            }
+            else if (direction == Direction.Left && pbDog.Location.X <= (pbDog.Width * 0.25))
+            {
+                Bounce(1, 0);
+            }
+            else
+            {
+                _runTimer.Start();
+            }
+
+
+        }
+
+        public void StopRunning()
+        {
+
+            if (MainForm.leftKeyDown == false && MainForm.rightKeyDown == false)
+            {
+                _runTimer.Stop();
+                pbDog.Tag = 0;
+                _wagTimer.Start();
+            }
+
+        }
+
+
+        //overloading UpdateImage method so that it can be used regardless of whether the dog is moving or stationary
+        private void UpdateImage(Bitmap bitmap, int tag, Point point)
+        {
             pbDog.Location = point;
             pbDog.Image = bitmap;
             pbDog.Height = bitmap.Height;
@@ -108,16 +142,19 @@ namespace Go_Fetch
             pbDog.Refresh();
         }
 
-        private void UpdateImage(Bitmap bitmap, int i)
+        private void UpdateImage(Bitmap bitmap, int tag, int i)
         {
             pbDog.Image = bitmap;
             pbDog.Height = bitmap.Height;
             pbDog.Width = bitmap.Width;
+            pbDog.Tag = tag; 
             System.Threading.Thread.Sleep(i);
             pbDog.Refresh();
         }
         
-        private void Sprint(Object source, EventArgs e)
+
+
+        private void Run(Object source, EventArgs e)
         {
 
             int increment = 0;
@@ -151,11 +188,10 @@ namespace Go_Fetch
             
         }
 
-
-
-        private void Wag()
+        private void Wag(object sender, EventArgs e)
         {
             List<Bitmap> wagBitmaps = null;
+            int tag = 0; 
 
             if (direction == Direction.Left)
             {
@@ -166,29 +202,33 @@ namespace Go_Fetch
                 wagBitmaps = _wagBitmapsR;
             }
 
-            int i = 0;
-            while (i < wagBitmaps.Count)
-            {
 
-                _myDog = wagBitmaps[i];
-                UpdateImage(_myDog, 100);
-                i++;
+            if (Int32.Parse(pbDog.Tag.ToString()) < wagBitmaps.Count - 1)
+            {
+                tag = Int32.Parse(pbDog.Tag.ToString()) + 1;
+                _myDog = wagBitmaps[tag];
+                UpdateImage(_myDog, tag, 100);
+            }
+            else
+            {
+                _wagTimer.Stop();
             }
 
+           
         }
 
         private void Bounce(int x, int y)
         {
             _runTimer.Stop();
             int xloc = pbDog.Location.X;
-            int yloc = pbDog.Location.Y; 
-            
+            int yloc = pbDog.Location.Y;
+         
             for (int i = 0; i < 10; i++)
             {
                 xloc += x;
                 yloc += y;
                 pbDog.Location = new Point(xloc, yloc);
-                System.Threading.Thread.Sleep(10); 
+                System.Threading.Thread.Sleep(10);
             }
 
             for (int i = 0; i < 10; i++)
@@ -198,44 +238,9 @@ namespace Go_Fetch
                 pbDog.Location = new Point(xloc, yloc);
                 System.Threading.Thread.Sleep(10);
             }
-            
+
         }
 
-        public void StartRunning()
-        {
-
-            counter = 0;
-
-            if (direction == Direction.Right && pbDog.Location.X >= Go_Fetch.MainForm.ActiveForm.ClientSize.Width - (pbDog.Width * 1.25))
-            {
-                Bounce(-1, 0); 
-
-            }
-            else if (direction == Direction.Left && pbDog.Location.X <= (pbDog.Width * 0.25))
-            {
-                Bounce(1, 0); 
-
-            }
-            else
-            {
-                
-                _runTimer.Start();
-            }
-
-            
-        }
-
-        public void StopRunning()
-        {
-            
-            if (MainForm.leftKeyDown == false && MainForm.rightKeyDown == false)
-            {
-                _runTimer.Stop();
-                pbDog.Tag = 0; 
-                Wag();
-            }
-            
-        }
-
+  
     }
 }

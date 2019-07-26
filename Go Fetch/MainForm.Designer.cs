@@ -46,6 +46,7 @@
         }
 
         #endregion
+        public System.Windows.Forms.Label lbLives;
     }
 }
 

@@ -13,13 +13,16 @@ namespace Go_Fetch
     {
         public readonly PictureBox pbTreat;
         private Bitmap myTreat;
-        private List<Bitmap> treatList; 
+        private List<Bitmap> _treatList; 
         private Random r = new Random();
-        private Dog _dog; 
+        private Dog _dog;
+        private int _formWidth; 
+
 
         public TreatDropper(Form form, Dog dog)
         {
-            _dog = dog; 
+            _dog = dog;
+
 
             List<Bitmap> treatList = new List<Bitmap>();
 
@@ -27,15 +30,16 @@ namespace Go_Fetch
             treatList.Add(Go_Fetch.Properties.Resources.Treat_TurkeyLeg);
             treatList.Add(Go_Fetch.Properties.Resources.Treat_Burger);
 
-            myTreat = treatList[r.Next(0, treatList.Count)];
+            _treatList = treatList; 
 
             pbTreat = new PictureBox
             {
                 Name = "pbTreat",
-                Image = myTreat,
-                Size = new System.Drawing.Size(myTreat.Width, myTreat.Height),
-                Location = new Point(r.Next(0, form.ClientSize.Width), 15 - myTreat.Height)
             };
+
+            _formWidth = form.ClientSize.Width; 
+
+            ResetTreat(); 
 
             form.Controls.Add(pbTreat);
             pbTreat.BringToFront();
@@ -44,9 +48,21 @@ namespace Go_Fetch
             DropTreat();
         }
 
+        private void ResetTreat()
+        {
+            myTreat = _treatList[r.Next(0, _treatList.Count)];
+
+            pbTreat.Image = myTreat;
+            pbTreat.Size = new System.Drawing.Size(myTreat.Width, myTreat.Height);
+            pbTreat.Location = new Point(r.Next(0, _formWidth), 15 - myTreat.Height);
+           
+        }
+       
+        //using a backgroundworker to ensure the treat keeps falling while the dog is moving 
         public void DropTreat()
         {
 
+            
 
             BackgroundWorker dropWorker = new BackgroundWorker();
             dropWorker.DoWork += Fall;
@@ -56,7 +72,6 @@ namespace Go_Fetch
             dropWorker.RunWorkerCompleted += dropWorker_runWorkerCompleted;
 
             dropWorker.RunWorkerAsync(); 
-
         }
 
         private void Fall(object sender, DoWorkEventArgs e)
@@ -82,6 +97,42 @@ namespace Go_Fetch
 
         private void dropWorker_runWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+
+
+            
+            if ((_dog.pbDog.Location.X > pbTreat.Location.X) && (_dog.pbDog.Location.X < pbTreat.Location.X + pbTreat.Width))
+            {
+                MainForm.score += MainForm.ScoreVal ;
+            }
+            else if ((_dog.pbDog.Location.X + _dog.pbDog.Width > pbTreat.Location.X) && (_dog.pbDog.Location.X + _dog.pbDog.Width < pbTreat.Location.X + pbTreat.Width))
+            {
+                MainForm.score += MainForm.ScoreVal; 
+            }
+            else if ((_dog.pbDog.Location.X + _dog.pbDog.Width / 2 > pbTreat.Location.X) && (_dog.pbDog.Location.X + _dog.pbDog.Width / 2 < pbTreat.Location.X + pbTreat.Width))
+            {
+                MainForm.score += MainForm.ScoreVal;
+            }
+            else
+            {
+                MainForm.lives -= 1;
+            }
+            
+            MainForm.UpdateLives();
+            MainForm.UpdateScore();
+
+            if (MainForm.lives > 0)
+            {
+                ResetTreat();
+                DropTreat(); 
+            }
+            else
+            {
+                MainForm.GameOver(); 
+            }
+
+
+       
+
 
         }
 
