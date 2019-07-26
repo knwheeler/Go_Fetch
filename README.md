@@ -16,8 +16,9 @@ Microsoft Visual Studio 2017
 
 ## Sources
 
-* Treat art by [PancInteractive](https://opengameart.org/content/food-items-from-crosstown-smash)
-* Dog art by [Hellkipz](https://opengameart.org/content/husky-sprites)
+* Treat art by [PancInteractive](https://opengameart.org/content/food-items-from-crosstown-smash) at [OpenGameArt](https://opengameart.org/)
+* Dog art by [Hellkipz](https://opengameart.org/content/husky-sprites) at [OpenGameArt](https://opengameart.org/)
+* Icon by [Dave Gandy](https://fontawesome.com/icons/paw?style=solid) at [Font Awesome](https://fontawesome.com/?from=io)
 
 ## Authors
 
